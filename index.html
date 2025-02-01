@@ -2,10 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Zillow Link Generator</title>
+  <title>Zillow Recently Sold Link Generator</title>
 </head>
 <body>
-  <h1>Generate Zillow Link by GPS Coordinates</h1>
+  <h1>Generate Zillow (Recently Sold) Link by GPS Coordinates</h1>
 
   <label for="latitude">Latitude:</label>
   <input id="latitude" type="text" value="31.927829">
@@ -28,44 +28,62 @@
       const lat = parseFloat(document.getElementById('latitude').value);
       const lon = parseFloat(document.getElementById('longitude').value);
 
-      // 2. Approx conversion: 1 degree of latitude ~ 69 miles
+      // 2. Approx conversion: 1° lat ~ 69 miles
       const MILES_PER_LAT_DEGREE = 69.0;
       const oneMileInLatDegrees = 1.0 / MILES_PER_LAT_DEGREE;
 
-      // 3. Calculate latitude offsets (± 1 mile)
+      // 3. Calculate latitude offsets (±1 mile)
       const latOffset = oneMileInLatDegrees;
       const latMax = lat + latOffset;
       const latMin = lat - latOffset;
 
-      // 4. Calculate longitude offsets (± 1 mile, scaled by cos(lat))
+      // 4. Calculate longitude offsets (±1 mile, scaled by cos(lat))
       const latRadians = lat * Math.PI / 180.0;
       const lonOffset = oneMileInLatDegrees * Math.cos(latRadians);
       const lonMax = lon + lonOffset;
       const lonMin = lon - lonOffset;
 
-      // 5. Construct Zillow’s searchQueryState JSON
+      // 5. Build the searchQueryState object for "recently_sold" with your filters
+      //    We ONLY overwrite mapBounds with the dynamic bounding box
       const searchQueryState = {
-        isMapVisible: true,
-        mapBounds: {
-          west: lonMin,
-          east: lonMax,
-          south: latMin,
-          north: latMax
+        "pagination": {},
+        "isMapVisible": true,
+        "mapBounds": {
+          "west": lonMin,
+          "east": lonMax,
+          "south": latMin,
+          "north": latMax
         },
-        filterState: {
-          sort: { value: "globalrelevanceex" }
+        "filterState": {
+          // All the filters you shared in your link
+          "sort": { "value": "globalrelevanceex" },
+          "sf": { "value": false },
+          "tow": { "value": false },
+          "mf": { "value": false },
+          "con": { "value": false },
+          "apa": { "value": false },
+          "manu": { "value": false },
+          "apco": { "value": false },
+          "rs":   { "value": true },  // <== "recently_sold" on
+          "fsba": { "value": false },
+          "fsbo": { "value": false },
+          "nc":   { "value": false },
+          "cmsn": { "value": false },
+          "auc":  { "value": false },
+          "fore": { "value": false }
         },
-        isListVisible: true,
-        category: "cat1"
+        "isListVisible": true,
+        "mapZoom": 14,
+        "usersSearchTerm": ""
       };
 
-      // 6. URL-encode the JSON for use in the query parameter
+      // 6. Encode the JSON for the query parameter
       const encodedSearchQuery = encodeURIComponent(JSON.stringify(searchQueryState));
 
-      // 7. Construct the final Zillow URL
-      const zillowUrl = `https://www.zillow.com/homes/for_sale/?searchQueryState=${encodedSearchQuery}&category=SEMANTIC`;
+      // 7. Construct the Zillow "recently_sold" URL
+      const zillowUrl = `https://www.zillow.com/homes/recently_sold/?searchQueryState=${encodedSearchQuery}&category=SEMANTIC`;
 
-      // 8. Update the link in the page
+      // 8. Update link on the page
       const linkElem = document.getElementById('zillowLink');
       linkElem.href = zillowUrl;
       linkElem.textContent = zillowUrl;
