@@ -30,7 +30,7 @@
 
       // 2. Approx conversion: 1° lat ~ 69 miles
       const MILES_PER_LAT_DEGREE = 69.0;
-      const oneMileInLatDegrees = 1.0 / MILES_PER_LAT_DEGREE;
+      const oneMileInLatDegrees = 1.0 / (2 * MILES_PER_LAT_DEGREE);
 
       // 3. Calculate latitude offsets (±1 mile)
       const latOffset = oneMileInLatDegrees;
